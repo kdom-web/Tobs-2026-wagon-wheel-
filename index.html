@@ -13,7 +13,7 @@
   }
   .dashboard-layout {
     display: flex;
-    max-width: 1220px;
+    max-width: 1240px;
     margin: 0 auto;
     gap: 24px;
     align-items: flex-start;
@@ -21,7 +21,7 @@
   
   /* Sidebar for Match Filters */
   .sidebar {
-    width: 280px;
+    width: 320px;
     background: #1e293b;
     border-radius: 14px;
     padding: 20px;
@@ -58,7 +58,7 @@
     border-color: #38bdf8;
   }
   .match-list {
-    max-height: 540px;
+    max-height: 560px;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
@@ -74,25 +74,46 @@
     border-radius: 8px;
     border: 1px solid #334155;
     cursor: pointer;
-    transition: border-color 0.15s ease;
+    transition: all 0.15s ease;
   }
   .match-item:hover {
     border-color: #38bdf8;
+  }
+  .match-item.did-not-bat {
+    opacity: 0.55;
   }
   .match-item input[type="checkbox"] {
     accent-color: #0284c7;
     width: 16px;
     height: 16px;
     cursor: pointer;
+    flex-shrink: 0;
   }
-  .match-label-text {
+  .match-label-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    overflow: hidden;
+    gap: 8px;
+  }
+  .match-name-text {
     font-size: 13px;
     font-weight: 500;
     color: #e2e8f0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    flex: 1;
+  }
+  .match-runs-badge {
+    font-size: 12px;
+    font-weight: 700;
+    color: #38bdf8;
+    white-space: nowrap;
+  }
+  .match-runs-badge.no-runs {
+    color: #64748b;
+    font-weight: 500;
   }
   
   /* Main Content Area */
@@ -250,7 +271,7 @@
     <h2>🏏 Tobs CC - Season Batting Analytics</h2>
     
     <div class="controls-row">
-      <select id="playerSelect" onchange="renderActiveView()">
+      <select id="playerSelect" onchange="onPlayerChange()">
         <option value="AHD">AHD (1 balls)</option><option value="Beads">Beads (121 balls)</option><option value="Chaz">Chaz (32 balls)</option><option value="Fish">Fish (16 balls)</option><option value="Fowles">Fowles (54 balls)</option><option value="Hastings">Hastings (35 balls)</option><option value="JB">JB (29 balls)</option><option value="James">James (10 balls)</option><option value="Jon">Jon (115 balls)</option><option value="Keith">Keith (65 balls)</option><option value="Lloyd">Lloyd (1 balls)</option><option value="Matt">Matt (11 balls)</option><option value="Player">Player (10 balls)</option><option value="Sloan">Sloan (2 balls)</option><option value="Tim">Tim (32 balls)</option>
       </select>
 
@@ -336,14 +357,34 @@ const CX = 270;
 const CY = 240;
 const RADIUS = 230;
 
-function initMatchCheckboxes() {
+function updateMatchCheckboxes() {
+  const playerName = document.getElementById("playerSelect").value;
+  const playerShots = DATA[playerName] || [];
+
+  // Compute runs and balls for the active player by fixture
+  const statsByMatch = {};
+  ALL_MATCHES.forEach(m => {
+    statsByMatch[m] = { runs: 0, balls: 0 };
+  });
+
+  playerShots.forEach(s => {
+    const m = s.match_label;
+    if (statsByMatch[m]) {
+      statsByMatch[m].runs += parseInt(s.runs, 10) || 0;
+      statsByMatch[m].balls += 1;
+    }
+  });
+
   const container = document.getElementById("matchList");
   container.innerHTML = "";
 
   ALL_MATCHES.forEach(m => {
     const item = document.createElement("label");
-    item.className = "match-item";
+    const st = statsByMatch[m];
+    const didBat = st.balls > 0;
     
+    item.className = didBat ? "match-item" : "match-item did-not-bat";
+
     const cb = document.createElement("input");
     cb.type = "checkbox";
     cb.value = m;
@@ -354,14 +395,34 @@ function initMatchCheckboxes() {
       renderActiveView();
     };
 
-    const txt = document.createElement("span");
-    txt.className = "match-label-text";
-    txt.innerText = m;
+    const textWrap = document.createElement("div");
+    textWrap.className = "match-label-container";
+
+    const nameSpan = document.createElement("span");
+    nameSpan.className = "match-name-text";
+    nameSpan.innerText = m;
+
+    const runsSpan = document.createElement("span");
+    if (didBat) {
+      runsSpan.className = "match-runs-badge";
+      runsSpan.innerText = `(${st.runs} runs, ${st.balls}b)`;
+    } else {
+      runsSpan.className = "match-runs-badge no-runs";
+      runsSpan.innerText = `(0 runs)`;
+    }
+
+    textWrap.appendChild(nameSpan);
+    textWrap.appendChild(runsSpan);
 
     item.appendChild(cb);
-    item.appendChild(txt);
+    item.appendChild(textWrap);
     container.appendChild(item);
   });
+}
+
+function onPlayerChange() {
+  updateMatchCheckboxes();
+  renderActiveView();
 }
 
 function toggleAllMatches(select) {
@@ -413,10 +474,8 @@ function renderActiveView() {
   const playerName = document.getElementById("playerSelect").value;
   const rawDeliveries = DATA[playerName] || [];
 
-  // Filter deliveries based on active match checkboxes
   const deliveries = rawDeliveries.filter(d => activeMatches.has(d.match_label));
 
-  // Compute metrics
   let grandRuns = 0;
   let grandFours = 0;
   let grandSixes = 0;
@@ -451,7 +510,6 @@ function renderActiveView() {
   });
   document.getElementById("topZone").innerText = grandRuns > 0 ? bestZoneName : "-";
 
-  // Reset SVG render groups
   const sectorsGroup = document.getElementById("sectorsGroup");
   const shotLinesGroup = document.getElementById("shotLinesGroup");
   const labelsGroup = document.getElementById("labelsGroup");
@@ -577,7 +635,7 @@ function renderActiveView() {
 }
 
 // Initialize
-initMatchCheckboxes();
+updateMatchCheckboxes();
 renderActiveView();
 </script>
 </body>
