@@ -13,7 +13,7 @@
   }
   .dashboard-layout {
     display: flex;
-    max-width: 1240px;
+    max-width: 1260px;
     margin: 0 auto;
     gap: 24px;
     align-items: flex-start;
@@ -58,7 +58,7 @@
     border-color: #38bdf8;
   }
   .match-list {
-    max-height: 560px;
+    max-height: 580px;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
@@ -289,26 +289,32 @@
     </div>
 
     <div class="visual-wrapper">
-      <svg width="520" height="520" viewBox="0 0 540 540" class="ground" id="mainSvg">
-        <!-- Ground Perimeter Circle -->
-        <circle cx="270" cy="240" r="230" fill="#091322" stroke="#334155" stroke-width="2"/>
+      <svg width="540" height="540" viewBox="0 0 560 560" class="ground" id="mainSvg">
+        <!-- Ground Perimeter Circle (Radius 230) -->
+        <circle cx="280" cy="250" r="230" fill="#091322" stroke="#334155" stroke-width="2"/>
 
         <!-- Sectors Layer (for scoring zones) -->
         <g id="sectorsGroup"></g>
         
         <!-- Inner 30-yard ring -->
-        <circle cx="270" cy="240" r="140" fill="none" stroke="#475569" stroke-width="1.5" stroke-dasharray="5 5" opacity="0.6"/>
+        <circle cx="280" cy="250" r="140" fill="none" stroke="#475569" stroke-width="1.5" stroke-dasharray="5 5" opacity="0.6"/>
         
         <!-- Pitch Rectangle -->
-        <rect x="258" y="235" width="24" height="105" fill="#f8fafc" stroke="#94a3b8" rx="2"/>
-        <!-- Crease -->
-        <line x1="252" y1="240" x2="288" y2="240" stroke="#ef4444" stroke-width="2.5"/>
-        <circle cx="270" cy="240" r="4.5" fill="#0f172a"/>
+        <rect x="268" y="245" width="24" height="105" fill="#f8fafc" stroke="#94a3b8" rx="2"/>
+        <!-- Batting Crease -->
+        <line x1="262" y1="250" x2="298" y2="250" stroke="#ef4444" stroke-width="2.5"/>
+        <circle cx="280" cy="250" r="4.5" fill="#0f172a"/>
         
-        <!-- Field Orientation Labels -->
-        <text x="140" y="42" fill="#64748b" font-size="13" font-weight="bold" text-anchor="middle">OFF SIDE</text>
-        <text x="400" y="42" fill="#64748b" font-size="13" font-weight="bold" text-anchor="middle">LEG SIDE</text>
-        <text x="270" y="525" fill="#475569" font-size="11" font-weight="bold" text-anchor="middle">BOWLER'S END (DOWN THE GROUND)</text>
+        <!-- Off Side & Leg Side Headers with clear pill backgrounds -->
+        <g id="headerLabels">
+          <rect x="75" y="38" width="95" height="24" rx="12" fill="#1e293b" stroke="#334155" opacity="0.95"/>
+          <text x="122.5" y="54" fill="#93c5fd" font-size="12" font-weight="700" letter-spacing="0.5" text-anchor="middle">OFF SIDE</text>
+
+          <rect x="390" y="38" width="95" height="24" rx="12" fill="#1e293b" stroke="#334155" opacity="0.95"/>
+          <text x="437.5" y="54" fill="#93c5fd" font-size="12" font-weight="700" letter-spacing="0.5" text-anchor="middle">LEG SIDE</text>
+
+          <text x="280" y="542" fill="#64748b" font-size="11" font-weight="700" letter-spacing="0.5" text-anchor="middle">BOWLER'S END (DOWN THE GROUND)</text>
+        </g>
         
         <!-- Dynamic Wagon Rays Layer -->
         <g id="shotLinesGroup"></g>
@@ -353,15 +359,16 @@ const ALL_MATCHES = ["BAL 30th apr", "BAL 8 jul", "Kenton 20th may", "Kenton 3rd
 let currentView = 'wagon';
 let activeMatches = new Set(ALL_MATCHES);
 
-const CX = 270;
-const CY = 240;
-const RADIUS = 230;
+// Canvas Center and Boundary Radius
+const CX = 280;
+const CY = 250;
+const RADIUS = 230; // Exact boundary rope
+const MAX_NON_BOUNDARY_RADIUS = RADIUS * 0.95; // Capped 5% below boundary (218.5)
 
 function updateMatchCheckboxes() {
   const playerName = document.getElementById("playerSelect").value;
   const playerShots = DATA[playerName] || [];
 
-  // Compute runs and balls for the active player by fixture
   const statsByMatch = {};
   ALL_MATCHES.forEach(m => {
     statsByMatch[m] = { runs: 0, balls: 0 };
@@ -522,19 +529,33 @@ function renderActiveView() {
       const runs = String(s.runs || "0");
       const rInt = parseInt(runs, 10) || 0;
 
-      const x1 = CX;
-      const y1 = CY;
+      // Extract raw delta from pitch crease (249.72, 208.74)
       const origX = parseFloat(s.end_x);
       const origY = parseFloat(s.end_y);
 
       if (!isNaN(origX) && !isNaN(origY)) {
-        const x2 = CX + (origX - 249.71765);
-        const y2 = CY + (origY - 208.74);
+        const dx = origX - 249.71765;
+        const dy = origY - 208.74;
+        const rawDist = Math.hypot(dx, dy);
+
+        let finalDist;
+        if (rInt === 4 || rInt === 6) {
+          // 4s and 6s project directly to the boundary edge
+          finalDist = RADIUS;
+        } else {
+          // Lower scoring shots maintain natural distance, capped at 5% below boundary
+          finalDist = Math.min(rawDist, MAX_NON_BOUNDARY_RADIUS);
+        }
+
+        // Scale coordinates along the exact delivery ray direction
+        const angle = Math.atan2(dy, dx);
+        const x2 = CX + finalDist * Math.cos(angle);
+        const y2 = CY + finalDist * Math.sin(angle);
         const col = COLOR_MAP[runs] || "#64748b";
 
         const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-        line.setAttribute("x1", x1);
-        line.setAttribute("y1", y1);
+        line.setAttribute("x1", CX);
+        line.setAttribute("y1", CY);
         line.setAttribute("x2", x2);
         line.setAttribute("y2", y2);
         line.setAttribute("stroke", col);
