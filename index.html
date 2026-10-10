@@ -2,24 +2,81 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>Tobs CC - Batting Analytics Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tobs CC - Season Analytics Hub</title>
 <style>
+  * { box-sizing: border-box; }
   body { 
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
     background: #0b1120; 
     color: #f8fafc;
-    padding: 24px; 
     margin: 0;
+    padding: 0;
   }
-  .dashboard-layout {
-    display: flex;
+  
+  /* Top App Bar */
+  .app-header {
+    background: #1e293b;
+    border-bottom: 1px solid #334155;
+    padding: 16px 24px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+  }
+  .header-inner {
     max-width: 1260px;
     margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .app-title {
+    margin: 0;
+    font-size: 20px;
+    color: #38bdf8;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    letter-spacing: -0.5px;
+  }
+  .top-mode-nav {
+    display: inline-flex;
+    background: #0f172a;
+    border: 1px solid #475569;
+    border-radius: 8px;
+    padding: 4px;
+  }
+  .mode-btn {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    padding: 8px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+  }
+  .mode-btn.active {
+    background: #0284c7;
+    color: #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  }
+
+  .content-container {
+    max-width: 1260px;
+    margin: 24px auto;
+    padding: 0 20px 40px;
+  }
+
+  /* WAGON WHEEL VIEW LAYOUT */
+  .dashboard-layout {
+    display: flex;
     gap: 24px;
     align-items: flex-start;
   }
-  
-  /* Sidebar for Match Filters */
   .sidebar {
     width: 320px;
     background: #1e293b;
@@ -116,7 +173,6 @@
     font-weight: 500;
   }
   
-  /* Main Content Area */
   .main-card { 
     flex: 1;
     background: #1e293b; 
@@ -126,7 +182,6 @@
     border: 1px solid #334155;
     text-align: center;
   }
-  h2 { margin-top: 0; color: #38bdf8; letter-spacing: -0.5px; }
   
   .controls-row {
     display: flex;
@@ -148,7 +203,6 @@
     cursor: pointer;
   }
   
-  /* Toggle Switch */
   .view-toggle {
     display: inline-flex;
     background: #0f172a;
@@ -250,104 +304,321 @@
     font-weight: bold;
     color: #38bdf8;
   }
+
+  /* OVERALL STATS VIEW */
+  .stats-card {
+    background: #1e293b;
+    border-radius: 14px;
+    padding: 28px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    border: 1px solid #334155;
+  }
+  .stats-header-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .stats-sub-toggle {
+    display: inline-flex;
+    background: #0f172a;
+    border: 1px solid #475569;
+    border-radius: 8px;
+    padding: 4px;
+  }
+  .sub-btn {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    padding: 8px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+  }
+  .sub-btn.active {
+    background: #0284c7;
+    color: #fff;
+  }
+  .search-input {
+    background: #0f172a;
+    border: 1px solid #475569;
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    width: 220px;
+  }
+  .search-input:focus {
+    border-color: #38bdf8;
+  }
+
+  /* Leaderboard Highlight Badges */
+  .highlight-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 26px;
+  }
+  .badge-card {
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 10px;
+    padding: 16px 20px;
+    border-left: 4px solid #38bdf8;
+  }
+  .badge-card.orange { border-left-color: #f59e0b; }
+  .badge-card.green { border-left-color: #10b981; }
+  .badge-card.purple { border-left-color: #a855f7; }
+
+  .badge-label { font-size: 11px; text-transform: uppercase; color: #94a3b8; margin-bottom: 4px; font-weight: 600; }
+  .badge-player { font-size: 18px; font-weight: bold; color: #f8fafc; margin-bottom: 2px; }
+  .badge-detail { font-size: 13px; color: #38bdf8; font-weight: 600; }
+
+  /* Full Data Tables */
+  .table-responsive {
+    overflow-x: auto;
+    border-radius: 10px;
+    border: 1px solid #334155;
+  }
+  table.stats-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #0f172a;
+    font-size: 13.5px;
+    text-align: right;
+  }
+  table.stats-table th, table.stats-table td {
+    padding: 11px 14px;
+    white-space: nowrap;
+  }
+  table.stats-table th {
+    background: #1e293b;
+    color: #94a3b8;
+    font-weight: 600;
+    cursor: pointer;
+    user-select: none;
+  }
+  table.stats-table th:hover {
+    color: #38bdf8;
+  }
+  table.stats-table th:nth-child(2), table.stats-table td:nth-child(2) {
+    text-align: left;
+    font-weight: 600;
+    color: #f8fafc;
+  }
+  table.stats-table th:first-child, table.stats-table td:first-child {
+    text-align: center;
+    width: 50px;
+    color: #64748b;
+  }
+  table.stats-table tr:not(:last-child) td {
+    border-bottom: 1px solid #1e293b;
+  }
+  table.stats-table tbody tr:hover {
+    background: #172554;
+  }
 </style>
 </head>
 <body>
 
-<div class="dashboard-layout">
-  
-  <!-- Matches Checkbox Sidebar -->
-  <div class="sidebar">
-    <h3>Matches Filter</h3>
-    <div class="filter-actions">
-      <button class="filter-btn" onclick="toggleAllMatches(true)">Select All</button>
-      <button class="filter-btn" onclick="toggleAllMatches(false)">Clear All</button>
+<!-- TOP APPLICATION HEADER -->
+<header class="app-header">
+  <div class="header-inner">
+    <h1 class="app-title">🏏 Tobs CC Season Analytics Hub</h1>
+    <div class="top-mode-nav">
+      <button class="mode-btn active" id="btnModeWagon" onclick="switchMainMode('wagon')">🎯 Wagon Wheels & Zones</button>
+      <button class="mode-btn" id="btnModeStats" onclick="switchMainMode('stats')">📊 Overall Season Stats</button>
     </div>
-    <div class="match-list" id="matchList"></div>
+  </div>
+</header>
+
+<div class="content-container">
+
+  <!-- ======================================================== -->
+  <!-- 1. WAGON WHEELS & ZONES VIEW                             -->
+  <!-- ======================================================== -->
+  <div id="viewWagonWheels" class="dashboard-layout">
+    
+    <!-- Matches Checkbox Sidebar -->
+    <div class="sidebar">
+      <h3>Matches Filter</h3>
+      <div class="filter-actions">
+        <button class="filter-btn" onclick="toggleAllMatches(true)">Select All</button>
+        <button class="filter-btn" onclick="toggleAllMatches(false)">Clear All</button>
+      </div>
+      <div class="match-list" id="matchList"></div>
+    </div>
+
+    <!-- Main Visual Card -->
+    <div class="main-card">
+      <div class="controls-row">
+        <select id="playerSelect" onchange="onPlayerChange()">
+          <option value="AHD">AHD (1 balls)</option><option value="Beads">Beads (121 balls)</option><option value="Chaz">Chaz (32 balls)</option><option value="Fish">Fish (16 balls)</option><option value="Fowles">Fowles (54 balls)</option><option value="Hastings">Hastings (35 balls)</option><option value="JB">JB (29 balls)</option><option value="James">James (10 balls)</option><option value="Jon">Jon (115 balls)</option><option value="Keith">Keith (65 balls)</option><option value="Lloyd">Lloyd (1 balls)</option><option value="Matt">Matt (11 balls)</option><option value="Player">Player (10 balls)</option><option value="Sloan">Sloan (2 balls)</option><option value="Tim">Tim (32 balls)</option>
+        </select>
+
+        <div class="view-toggle">
+          <button class="toggle-btn active" id="btnWagon" onclick="switchWheelView('wagon')">Wagon Wheel</button>
+          <button class="toggle-btn" id="btnZones" onclick="switchWheelView('zones')">Scoring Areas</button>
+        </div>
+      </div>
+
+      <div class="metric-cards">
+        <div class="metric-box"><div class="metric-title">Runs</div><div class="metric-val" id="totalRuns">0</div></div>
+        <div class="metric-box"><div class="metric-title">Balls</div><div class="metric-val" id="totalBalls">0</div></div>
+        <div class="metric-box"><div class="metric-title">Boundaries (4s / 6s)</div><div class="metric-val" id="totalBoundaries">0 / 0</div></div>
+        <div class="metric-box"><div class="metric-title">Top Scoring Zone</div><div class="metric-val" id="topZone">-</div></div>
+      </div>
+
+      <div class="visual-wrapper">
+        <svg width="540" height="540" viewBox="0 0 560 560" class="ground" id="mainSvg">
+          <!-- Boundary Perimeter Circle (Radius 230) -->
+          <circle cx="280" cy="250" r="230" fill="#091322" stroke="#334155" stroke-width="2"/>
+
+          <!-- Sectors Layer -->
+          <g id="sectorsGroup"></g>
+          
+          <!-- Inner 30-yard ring -->
+          <circle cx="280" cy="250" r="140" fill="none" stroke="#475569" stroke-width="1.5" stroke-dasharray="5 5" opacity="0.6"/>
+          
+          <!-- Pitch Rectangle -->
+          <rect x="268" y="245" width="24" height="105" fill="#f8fafc" stroke="#94a3b8" rx="2"/>
+          <line x1="262" y1="250" x2="298" y2="250" stroke="#ef4444" stroke-width="2.5"/>
+          <circle cx="280" cy="250" r="4.5" fill="#0f172a"/>
+          
+          <!-- Pill Headers for Off Side / Leg Side -->
+          <g id="headerLabels">
+            <rect x="75" y="38" width="95" height="24" rx="12" fill="#1e293b" stroke="#334155" opacity="0.95"/>
+            <text x="122.5" y="54" fill="#93c5fd" font-size="12" font-weight="700" letter-spacing="0.5" text-anchor="middle">OFF SIDE</text>
+
+            <rect x="390" y="38" width="95" height="24" rx="12" fill="#1e293b" stroke="#334155" opacity="0.95"/>
+            <text x="437.5" y="54" fill="#93c5fd" font-size="12" font-weight="700" letter-spacing="0.5" text-anchor="middle">LEG SIDE</text>
+
+            <text x="280" y="542" fill="#64748b" font-size="11" font-weight="700" letter-spacing="0.5" text-anchor="middle">BOWLER'S END (DOWN THE GROUND)</text>
+          </g>
+          
+          <g id="shotLinesGroup"></g>
+          <g id="labelsGroup"></g>
+        </svg>
+      </div>
+
+      <!-- Wagon Legend -->
+      <div class="wagon-legend" id="wagonLegend">
+        <div class="legend-item"><span class="dot" style="background:#00A896"></span> 1 Run</div>
+        <div class="legend-item"><span class="dot" style="background:#F4A261"></span> 2 Runs</div>
+        <div class="legend-item"><span class="dot" style="background:#E76F51"></span> 3 Runs</div>
+        <div class="legend-item"><span class="dot" style="background:#7B1FA2"></span> 4 Runs</div>
+        <div class="legend-item"><span class="dot" style="background:#1565C0"></span> 6 Runs</div>
+      </div>
+
+      <!-- Scoring Areas Table -->
+      <table class="zone-table" id="zonesTable" style="display: none;">
+        <thead>
+          <tr>
+            <th>Fielding Zone</th>
+            <th>Shots</th>
+            <th>Runs</th>
+            <th>4s</th>
+            <th>6s</th>
+            <th>% of Total Runs</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
   </div>
 
-  <!-- Main Visual Card -->
-  <div class="main-card">
-    <h2>🏏 Tobs CC - Season Batting Analytics</h2>
+  <!-- ======================================================== -->
+  <!-- 2. OVERALL SEASON STATS VIEW                             -->
+  <!-- ======================================================== -->
+  <div id="viewSeasonStats" class="stats-card" style="display: none;">
     
-    <div class="controls-row">
-      <select id="playerSelect" onchange="onPlayerChange()">
-        <option value="AHD">AHD (1 balls)</option><option value="Beads">Beads (121 balls)</option><option value="Chaz">Chaz (32 balls)</option><option value="Fish">Fish (16 balls)</option><option value="Fowles">Fowles (54 balls)</option><option value="Hastings">Hastings (35 balls)</option><option value="JB">JB (29 balls)</option><option value="James">James (10 balls)</option><option value="Jon">Jon (115 balls)</option><option value="Keith">Keith (65 balls)</option><option value="Lloyd">Lloyd (1 balls)</option><option value="Matt">Matt (11 balls)</option><option value="Player">Player (10 balls)</option><option value="Sloan">Sloan (2 balls)</option><option value="Tim">Tim (32 balls)</option>
-      </select>
-
-      <div class="view-toggle">
-        <button class="toggle-btn active" id="btnWagon" onclick="switchView('wagon')">Wagon Wheel</button>
-        <button class="toggle-btn" id="btnZones" onclick="switchView('zones')">Scoring Areas</button>
+    <!-- Top Highlight Badges -->
+    <div class="highlight-grid">
+      <div class="badge-card">
+        <div class="badge-label">Top Run Scorer</div>
+        <div class="badge-player">Jon Curran</div>
+        <div class="badge-detail">476 Runs (Avg 95.20)</div>
+      </div>
+      <div class="badge-card green">
+        <div class="badge-label">Top Wicket Taker</div>
+        <div class="badge-player">Luke Fowles</div>
+        <div class="badge-detail">14 Wickets (Avg 28.71)</div>
+      </div>
+      <div class="badge-card orange">
+        <div class="badge-label">Highest Strike Rate</div>
+        <div class="badge-player">Tim Hargreaves</div>
+        <div class="badge-detail">178.95 SR (136 Runs)</div>
+      </div>
+      <div class="badge-card purple">
+        <div class="badge-label">Best Bowling Figures</div>
+        <div class="badge-player">James Sloan & Luke Fowles</div>
+        <div class="badge-detail">3/15 (Sloan) & 3/19 (Fowles)</div>
       </div>
     </div>
 
-    <div class="metric-cards">
-      <div class="metric-box"><div class="metric-title">Runs</div><div class="metric-val" id="totalRuns">0</div></div>
-      <div class="metric-box"><div class="metric-title">Balls</div><div class="metric-val" id="totalBalls">0</div></div>
-      <div class="metric-box"><div class="metric-title">Boundaries (4s / 6s)</div><div class="metric-val" id="totalBoundaries">0 / 0</div></div>
-      <div class="metric-box"><div class="metric-title">Top Scoring Zone</div><div class="metric-val" id="topZone">-</div></div>
+    <!-- Table Nav & Search -->
+    <div class="stats-header-bar">
+      <div class="stats-sub-toggle">
+        <button class="sub-btn active" id="btnStatsBat" onclick="switchStatsTable('batting')">🏏 Batting Statistics</button>
+        <button class="sub-btn" id="btnStatsBowl" onclick="switchStatsTable('bowling')">🎯 Bowling Statistics</button>
+      </div>
+
+      <input type="text" class="search-input" id="statsSearch" placeholder="🔍 Search player..." onkeyup="filterStatsTable()">
     </div>
 
-    <div class="visual-wrapper">
-      <svg width="540" height="540" viewBox="0 0 560 560" class="ground" id="mainSvg">
-        <!-- Ground Perimeter Circle (Radius 230) -->
-        <circle cx="280" cy="250" r="230" fill="#091322" stroke="#334155" stroke-width="2"/>
-
-        <!-- Sectors Layer (for scoring zones) -->
-        <g id="sectorsGroup"></g>
-        
-        <!-- Inner 30-yard ring -->
-        <circle cx="280" cy="250" r="140" fill="none" stroke="#475569" stroke-width="1.5" stroke-dasharray="5 5" opacity="0.6"/>
-        
-        <!-- Pitch Rectangle -->
-        <rect x="268" y="245" width="24" height="105" fill="#f8fafc" stroke="#94a3b8" rx="2"/>
-        <!-- Batting Crease -->
-        <line x1="262" y1="250" x2="298" y2="250" stroke="#ef4444" stroke-width="2.5"/>
-        <circle cx="280" cy="250" r="4.5" fill="#0f172a"/>
-        
-        <!-- Off Side & Leg Side Headers with clear pill backgrounds -->
-        <g id="headerLabels">
-          <rect x="75" y="38" width="95" height="24" rx="12" fill="#1e293b" stroke="#334155" opacity="0.95"/>
-          <text x="122.5" y="54" fill="#93c5fd" font-size="12" font-weight="700" letter-spacing="0.5" text-anchor="middle">OFF SIDE</text>
-
-          <rect x="390" y="38" width="95" height="24" rx="12" fill="#1e293b" stroke="#334155" opacity="0.95"/>
-          <text x="437.5" y="54" fill="#93c5fd" font-size="12" font-weight="700" letter-spacing="0.5" text-anchor="middle">LEG SIDE</text>
-
-          <text x="280" y="542" fill="#64748b" font-size="11" font-weight="700" letter-spacing="0.5" text-anchor="middle">BOWLER'S END (DOWN THE GROUND)</text>
-        </g>
-        
-        <!-- Dynamic Wagon Rays Layer -->
-        <g id="shotLinesGroup"></g>
-
-        <!-- Text Callouts Layer -->
-        <g id="labelsGroup"></g>
-      </svg>
+    <!-- Batting Table -->
+    <div class="table-responsive" id="battingTableWrapper">
+      <table class="stats-table" id="battingStatsTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Player</th>
+            <th>M</th>
+            <th>Inn</th>
+            <th>NO</th>
+            <th>Runs</th>
+            <th>HS</th>
+            <th>Avg</th>
+            <th>SR</th>
+            <th>50s</th>
+            <th>4s</th>
+            <th>6s</th>
+            <th>Ducks</th>
+          </tr>
+        </thead>
+        <tbody id="battingTableBody"></tbody>
+      </table>
     </div>
 
-    <!-- Legend for Wagon Wheel -->
-    <div class="wagon-legend" id="wagonLegend">
-      <div class="legend-item"><span class="dot" style="background:#00A896"></span> 1 Run</div>
-      <div class="legend-item"><span class="dot" style="background:#F4A261"></span> 2 Runs</div>
-      <div class="legend-item"><span class="dot" style="background:#E76F51"></span> 3 Runs</div>
-      <div class="legend-item"><span class="dot" style="background:#7B1FA2"></span> 4 Runs</div>
-      <div class="legend-item"><span class="dot" style="background:#1565C0"></span> 6 Runs</div>
+    <!-- Bowling Table -->
+    <div class="table-responsive" id="bowlingTableWrapper" style="display: none;">
+      <table class="stats-table" id="bowlingStatsTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Player</th>
+            <th>Overs</th>
+            <th>Mdns</th>
+            <th>Runs</th>
+            <th>Wkts</th>
+            <th>BBI</th>
+            <th>Econ</th>
+            <th>Avg</th>
+            <th>SR</th>
+            <th>% Team Wkts</th>
+          </tr>
+        </thead>
+        <tbody id="bowlingTableBody"></tbody>
+      </table>
     </div>
 
-    <!-- Table for Scoring Areas -->
-    <table class="zone-table" id="zonesTable" style="display: none;">
-      <thead>
-        <tr>
-          <th>Fielding Zone</th>
-          <th>Shots</th>
-          <th>Runs</th>
-          <th>4s</th>
-          <th>6s</th>
-          <th>% of Total Runs</th>
-        </tr>
-      </thead>
-      <tbody id="tableBody"></tbody>
-    </table>
   </div>
+
 </div>
 
 <script>
@@ -355,24 +626,126 @@ const DATA = {"Fish": [{"player_name": "Fish", "match_id": "7671603", "innings":
 const ZONES = [{"name": "Third Man", "start": 300.0, "end": 345.0, "mid": 322.5}, {"name": "Fine Leg", "start": 15.0, "end": 60.0, "mid": 37.5}, {"name": "Point", "start": 255.0, "end": 300.0, "mid": 277.5}, {"name": "Square Leg", "start": 60.0, "end": 105.0, "mid": 82.5}, {"name": "Cover / Extra Cover", "start": 210.0, "end": 255.0, "mid": 232.5}, {"name": "Mid-Wicket", "start": 105.0, "end": 150.0, "mid": 127.5}, {"name": "Long Off / Mid-Off", "start": 180.0, "end": 210.0, "mid": 195.0}, {"name": "Long On / Mid-On", "start": 150.0, "end": 180.0, "mid": 165.0}];
 const COLOR_MAP = {"1": "#00A896", "2": "#F4A261", "3": "#E76F51", "4": "#7B1FA2", "6": "#1565C0", "0": "#64748b"};
 const ALL_MATCHES = ["BAL 30th apr", "BAL 8 jul", "Kenton 20th may", "Kenton 3rd aug", "Old imp 29th may", "Snakes 16 jul", "phins cup", "stokr 15 june", "strictly 14th aug", "strictly 309th"];
+const BATTING_DATA = [{"Rank": 1, "Player": "Jon Curran", "GAMES": 13, "INNS": 13, "NOT OUTS": 8, "RUNS": 476, "HIGH SCORE": 62, "AVG": 95.2, "50s": 7, "100s": 0, "STRIKE RATE": 150.16, "4s": 59, "6s": 9, "DUCKS": 0}, {"Rank": 2, "Player": "alex beadle", "GAMES": 9, "INNS": 9, "NOT OUTS": 3, "RUNS": 338, "HIGH SCORE": 86, "AVG": 56.33, "50s": 3, "100s": 0, "STRIKE RATE": 119.86, "4s": 35, "6s": 0, "DUCKS": 0}, {"Rank": 3, "Player": "Oliver Hastings", "GAMES": 10, "INNS": 10, "NOT OUTS": 3, "RUNS": 197, "HIGH SCORE": 55, "AVG": 28.14, "50s": 1, "100s": 0, "STRIKE RATE": 135.86, "4s": 21, "6s": 9, "DUCKS": 1}, {"Rank": 4, "Player": "Keith Domnick", "GAMES": 13, "INNS": 13, "NOT OUTS": 4, "RUNS": 163, "HIGH SCORE": 58, "AVG": 18.11, "50s": 1, "100s": 0, "STRIKE RATE": 114.79, "4s": 18, "6s": 0, "DUCKS": 0}, {"Rank": 5, "Player": "Tim Hargreaves", "GAMES": 4, "INNS": 4, "NOT OUTS": 0, "RUNS": 136, "HIGH SCORE": 59, "AVG": 34.0, "50s": 2, "100s": 0, "STRIKE RATE": 178.95, "4s": 15, "6s": 5, "DUCKS": 1}, {"Rank": 6, "Player": "Luke Fowles", "GAMES": 14, "INNS": 8, "NOT OUTS": 4, "RUNS": 115, "HIGH SCORE": 31, "AVG": 28.75, "50s": 0, "100s": 0, "STRIKE RATE": 119.79, "4s": 9, "6s": 1, "DUCKS": 2}, {"Rank": 7, "Player": "Joseph Beltrami", "GAMES": 8, "INNS": 8, "NOT OUTS": 5, "RUNS": 103, "HIGH SCORE": 50, "AVG": 34.33, "50s": 1, "100s": 0, "STRIKE RATE": 105.1, "4s": 11, "6s": 2, "DUCKS": 1}, {"Rank": 8, "Player": "Dom Oliver", "GAMES": 5, "INNS": 5, "NOT OUTS": 2, "RUNS": 87, "HIGH SCORE": 40, "AVG": 29.0, "50s": 0, "100s": 0, "STRIKE RATE": 164.15, "4s": 10, "6s": 2, "DUCKS": 0}, {"Rank": 9, "Player": "Charlie Stevens", "GAMES": 8, "INNS": 6, "NOT OUTS": 1, "RUNS": 60, "HIGH SCORE": 19, "AVG": 12.0, "50s": 0, "100s": 0, "STRIKE RATE": 111.11, "4s": 6, "6s": 0, "DUCKS": 1}, {"Rank": 10, "Player": "Richard Fish", "GAMES": 10, "INNS": 4, "NOT OUTS": 1, "RUNS": 42, "HIGH SCORE": 20, "AVG": 14.0, "50s": 0, "100s": 0, "STRIKE RATE": 105.0, "4s": 2, "6s": 1, "DUCKS": 0}, {"Rank": 11, "Player": "James Sloan", "GAMES": 8, "INNS": 4, "NOT OUTS": 2, "RUNS": 30, "HIGH SCORE": 21, "AVG": 15.0, "50s": 0, "100s": 0, "STRIKE RATE": 76.92, "4s": 2, "6s": 0, "DUCKS": 0}, {"Rank": 12, "Player": "Matt Langford", "GAMES": 8, "INNS": 5, "NOT OUTS": 3, "RUNS": 28, "HIGH SCORE": 11, "AVG": 14.0, "50s": 0, "100s": 0, "STRIKE RATE": 100.0, "4s": 0, "6s": 0, "DUCKS": 0}, {"Rank": 13, "Player": "Lloyd Martin", "GAMES": 4, "INNS": 3, "NOT OUTS": 0, "RUNS": 9, "HIGH SCORE": 8, "AVG": 3.0, "50s": 0, "100s": 0, "STRIKE RATE": 47.37, "4s": 1, "6s": 0, "DUCKS": 0}];
+const BOWLING_DATA = [{"Rank": 1, "Player": "Luke Fowles", "OVERS": 54.3, "MAIDENS": 1, "RUNS": 402, "WICKETS": 14, "BEST BOWLING": "3/19", "ECONOMY RATE": 7.38, "AVERAGE": 28.71, "STRIKE RATE": 23.36, "PERCENT_TEAM_WICKETS": 24.56}, {"Rank": 2, "Player": "Jon Curran", "OVERS": 32.1, "MAIDENS": 0, "RUNS": 230, "WICKETS": 10, "BEST BOWLING": "3/31", "ECONOMY RATE": 7.15, "AVERAGE": 23.0, "STRIKE RATE": 19.3, "PERCENT_TEAM_WICKETS": 22.73}, {"Rank": 3, "Player": "James Sloan", "OVERS": 27.4, "MAIDENS": 0, "RUNS": 202, "WICKETS": 9, "BEST BOWLING": "3/15", "ECONOMY RATE": 7.3, "AVERAGE": 22.44, "STRIKE RATE": 18.44, "PERCENT_TEAM_WICKETS": 36.0}, {"Rank": 4, "Player": "Charlie Stevens", "OVERS": 30.5, "MAIDENS": 0, "RUNS": 352, "WICKETS": 5, "BEST BOWLING": "2/52", "ECONOMY RATE": 11.42, "AVERAGE": 70.4, "STRIKE RATE": 37.0, "PERCENT_TEAM_WICKETS": 12.2}, {"Rank": 5, "Player": "Richard Fish", "OVERS": 35.0, "MAIDENS": 1, "RUNS": 274, "WICKETS": 3, "BEST BOWLING": "2/22", "ECONOMY RATE": 7.83, "AVERAGE": 91.33, "STRIKE RATE": 70.0, "PERCENT_TEAM_WICKETS": 7.14}, {"Rank": 6, "Player": "alex beadle", "OVERS": 15.0, "MAIDENS": 0, "RUNS": 151, "WICKETS": 1, "BEST BOWLING": "1/20", "ECONOMY RATE": 10.07, "AVERAGE": 151.0, "STRIKE RATE": 90.0, "PERCENT_TEAM_WICKETS": 4.76}, {"Rank": 7, "Player": "Joseph Beltrami", "OVERS": 3.0, "MAIDENS": 0, "RUNS": 47, "WICKETS": 1, "BEST BOWLING": "1/12", "ECONOMY RATE": 15.67, "AVERAGE": 47.0, "STRIKE RATE": 18.0, "PERCENT_TEAM_WICKETS": 7.14}, {"Rank": 8, "Player": "Keith Domnick", "OVERS": 3.0, "MAIDENS": 0, "RUNS": 30, "WICKETS": 1, "BEST BOWLING": "1/10", "ECONOMY RATE": 10.0, "AVERAGE": 30.0, "STRIKE RATE": 18.0, "PERCENT_TEAM_WICKETS": 16.67}, {"Rank": 9, "Player": "Tim Hargreaves", "OVERS": 3.0, "MAIDENS": 0, "RUNS": 44, "WICKETS": 1, "BEST BOWLING": "1/24", "ECONOMY RATE": 14.67, "AVERAGE": 44.0, "STRIKE RATE": 18.0, "PERCENT_TEAM_WICKETS": 16.67}, {"Rank": 10, "Player": "Oliver Hastings", "OVERS": 6.0, "MAIDENS": 0, "RUNS": 63, "WICKETS": 1, "BEST BOWLING": "1/17", "ECONOMY RATE": 10.5, "AVERAGE": 63.0, "STRIKE RATE": 36.0, "PERCENT_TEAM_WICKETS": 5.0}, {"Rank": 11, "Player": "Lloyd Martin", "OVERS": 8.0, "MAIDENS": 0, "RUNS": 96, "WICKETS": 1, "BEST BOWLING": "1/44", "ECONOMY RATE": 12.0, "AVERAGE": 96.0, "STRIKE RATE": 48.0, "PERCENT_TEAM_WICKETS": 10.0}, {"Rank": 12, "Player": "Matt Langford", "OVERS": 3.0, "MAIDENS": 0, "RUNS": 41, "WICKETS": 0, "BEST BOWLING": "0/41", "ECONOMY RATE": 13.67, "AVERAGE": "-", "STRIKE RATE": "-", "PERCENT_TEAM_WICKETS": 0.0}];
 
-let currentView = 'wagon';
+let currentMainMode = 'wagon';
+let currentWheelView = 'wagon';
+let currentStatsTable = 'batting';
 let activeMatches = new Set(ALL_MATCHES);
 
-// Canvas Center and Boundary Radius
 const CX = 280;
 const CY = 250;
-const RADIUS = 230; // Exact boundary rope
-const MAX_NON_BOUNDARY_RADIUS = RADIUS * 0.95; // Capped 5% below boundary (218.5)
+const RADIUS = 230;
+const MAX_NON_BOUNDARY_RADIUS = RADIUS * 0.95;
 
+// MAIN MODE TOGGLE
+function switchMainMode(mode) {
+  currentMainMode = mode;
+  document.getElementById('btnModeWagon').classList.toggle('active', mode === 'wagon');
+  document.getElementById('btnModeStats').classList.toggle('active', mode === 'stats');
+
+  document.getElementById('viewWagonWheels').style.display = mode === 'wagon' ? 'flex' : 'none';
+  document.getElementById('viewSeasonStats').style.display = mode === 'stats' ? 'block' : 'none';
+
+  if (mode === 'wagon') renderActiveWheelView();
+  else renderStatsTables();
+}
+
+// WAGON SUB-VIEW TOGGLE
+function switchWheelView(view) {
+  currentWheelView = view;
+  document.getElementById('btnWagon').classList.toggle('active', view === 'wagon');
+  document.getElementById('btnZones').classList.toggle('active', view === 'zones');
+  
+  document.getElementById('wagonLegend').style.display = view === 'wagon' ? 'flex' : 'none';
+  document.getElementById('zonesTable').style.display = view === 'zones' ? 'table' : 'none';
+
+  renderActiveWheelView();
+}
+
+// STATS SUB-TABLE TOGGLE
+function switchStatsTable(tableType) {
+  currentStatsTable = tableType;
+  document.getElementById('btnStatsBat').classList.toggle('active', tableType === 'batting');
+  document.getElementById('btnStatsBowl').classList.toggle('active', tableType === 'bowling');
+
+  document.getElementById('battingTableWrapper').style.display = tableType === 'batting' ? 'block' : 'none';
+  document.getElementById('bowlingTableWrapper').style.display = tableType === 'bowling' ? 'block' : 'none';
+
+  filterStatsTable();
+}
+
+// POPULATE SEASON TABLES
+function renderStatsTables() {
+  // Batting
+  const batBody = document.getElementById("battingTableBody");
+  batBody.innerHTML = "";
+  BATTING_DATA.forEach((r, idx) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${r.Rank || idx + 1}</td>
+      <td>${r.Player}</td>
+      <td>${r.GAMES}</td>
+      <td>${r.INNS}</td>
+      <td>${r["NOT OUTS"]}</td>
+      <td><strong>${r.RUNS}</strong></td>
+      <td>${r["HIGH SCORE"]}</td>
+      <td>${typeof r.AVG === 'number' ? r.AVG.toFixed(2) : r.AVG}</td>
+      <td>${typeof r["STRIKE RATE"] === 'number' ? r["STRIKE RATE"].toFixed(1) : r["STRIKE RATE"]}</td>
+      <td>${r["50s"]}</td>
+      <td>${r["4s"]}</td>
+      <td>${r["6s"]}</td>
+      <td>${r.DUCKS}</td>
+    `;
+    batBody.appendChild(tr);
+  });
+
+  // Bowling
+  const bowlBody = document.getElementById("bowlingTableBody");
+  bowlBody.innerHTML = "";
+  BOWLING_DATA.forEach((r, idx) => {
+    const tr = document.createElement("tr");
+    const avgVal = typeof r.AVERAGE === 'number' ? r.AVERAGE.toFixed(2) : r.AVERAGE;
+    const srVal = typeof r["STRIKE RATE"] === 'number' ? r["STRIKE RATE"].toFixed(1) : r["STRIKE RATE"];
+    const econVal = typeof r["ECONOMY RATE"] === 'number' ? r["ECONOMY RATE"].toFixed(2) : r["ECONOMY RATE"];
+    const teamWkts = r.PERCENT_TEAM_WICKETS !== undefined ? `${r.PERCENT_TEAM_WICKETS}%` : (r["% TEAM WICKET"] ? `${r["% TEAM WICKET"]}%` : '-');
+
+    tr.innerHTML = `
+      <td>${r.Rank || idx + 1}</td>
+      <td>${r.Player}</td>
+      <td>${r.OVERS}</td>
+      <td>${r.MAIDENS}</td>
+      <td>${r.RUNS}</td>
+      <td><strong>${r.WICKETS}</strong></td>
+      <td>${r["BEST BOWLING"]}</td>
+      <td>${econVal}</td>
+      <td>${avgVal}</td>
+      <td>${srVal}</td>
+      <td>${teamWkts}</td>
+    `;
+    bowlBody.appendChild(tr);
+  });
+}
+
+function filterStatsTable() {
+  const query = document.getElementById("statsSearch").value.toLowerCase();
+  const activeTableId = currentStatsTable === 'batting' ? 'battingStatsTable' : 'bowlingStatsTable';
+  const rows = document.querySelectorAll(`#${activeTableId} tbody tr`);
+  
+  rows.forEach(r => {
+    const pName = r.children[1].innerText.toLowerCase();
+    r.style.display = pName.includes(query) ? "" : "none";
+  });
+}
+
+// WAGON WHEEL CODE
 function updateMatchCheckboxes() {
   const playerName = document.getElementById("playerSelect").value;
   const playerShots = DATA[playerName] || [];
 
   const statsByMatch = {};
-  ALL_MATCHES.forEach(m => {
-    statsByMatch[m] = { runs: 0, balls: 0 };
-  });
+  ALL_MATCHES.forEach(m => { statsByMatch[m] = { runs: 0, balls: 0 }; });
 
   playerShots.forEach(s => {
     const m = s.match_label;
@@ -399,7 +772,7 @@ function updateMatchCheckboxes() {
     cb.onchange = () => {
       if (cb.checked) activeMatches.add(m);
       else activeMatches.delete(m);
-      renderActiveView();
+      renderActiveWheelView();
     };
 
     const textWrap = document.createElement("div");
@@ -410,13 +783,8 @@ function updateMatchCheckboxes() {
     nameSpan.innerText = m;
 
     const runsSpan = document.createElement("span");
-    if (didBat) {
-      runsSpan.className = "match-runs-badge";
-      runsSpan.innerText = `(${st.runs} runs, ${st.balls}b)`;
-    } else {
-      runsSpan.className = "match-runs-badge no-runs";
-      runsSpan.innerText = `(0 runs)`;
-    }
+    runsSpan.className = didBat ? "match-runs-badge" : "match-runs-badge no-runs";
+    runsSpan.innerText = didBat ? `(${st.runs} runs, ${st.balls}b)` : `(0 runs)`;
 
     textWrap.appendChild(nameSpan);
     textWrap.appendChild(runsSpan);
@@ -429,7 +797,7 @@ function updateMatchCheckboxes() {
 
 function onPlayerChange() {
   updateMatchCheckboxes();
-  renderActiveView();
+  renderActiveWheelView();
 }
 
 function toggleAllMatches(select) {
@@ -439,7 +807,7 @@ function toggleAllMatches(select) {
   document.querySelectorAll("#matchList input[type='checkbox']").forEach(cb => {
     cb.checked = select;
   });
-  renderActiveView();
+  renderActiveWheelView();
 }
 
 function polarToCartesian(angleDeg, r) {
@@ -466,18 +834,7 @@ function describeArc(startAngle, endAngle, r) {
   ].join(" ");
 }
 
-function switchView(view) {
-  currentView = view;
-  document.getElementById('btnWagon').classList.toggle('active', view === 'wagon');
-  document.getElementById('btnZones').classList.toggle('active', view === 'zones');
-  
-  document.getElementById('wagonLegend').style.display = view === 'wagon' ? 'flex' : 'none';
-  document.getElementById('zonesTable').style.display = view === 'zones' ? 'table' : 'none';
-
-  renderActiveView();
-}
-
-function renderActiveView() {
+function renderActiveWheelView() {
   const playerName = document.getElementById("playerSelect").value;
   const rawDeliveries = DATA[playerName] || [];
 
@@ -524,12 +881,11 @@ function renderActiveView() {
   shotLinesGroup.innerHTML = "";
   labelsGroup.innerHTML = "";
 
-  if (currentView === 'wagon') {
+  if (currentWheelView === 'wagon') {
     deliveries.forEach(s => {
       const runs = String(s.runs || "0");
       const rInt = parseInt(runs, 10) || 0;
 
-      // Extract raw delta from pitch crease (249.72, 208.74)
       const origX = parseFloat(s.end_x);
       const origY = parseFloat(s.end_y);
 
@@ -540,14 +896,11 @@ function renderActiveView() {
 
         let finalDist;
         if (rInt === 4 || rInt === 6) {
-          // 4s and 6s project directly to the boundary edge
           finalDist = RADIUS;
         } else {
-          // Lower scoring shots maintain natural distance, capped at 5% below boundary
           finalDist = Math.min(rawDist, MAX_NON_BOUNDARY_RADIUS);
         }
 
-        // Scale coordinates along the exact delivery ray direction
         const angle = Math.atan2(dy, dx);
         const x2 = CX + finalDist * Math.cos(angle);
         const y2 = CY + finalDist * Math.sin(angle);
@@ -657,7 +1010,8 @@ function renderActiveView() {
 
 // Initialize
 updateMatchCheckboxes();
-renderActiveView();
+renderActiveWheelView();
+renderStatsTables();
 </script>
 </body>
 </html>
